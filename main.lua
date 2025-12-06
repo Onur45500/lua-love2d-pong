@@ -14,6 +14,8 @@ pad.y = 0
 
 score = {player = 0, computer = 0}
 
+listeTrails = {}
+
 
 function love.load()
     ball.x = love.graphics.getWidth() / 2 - ball.width / 2
@@ -31,8 +33,25 @@ function love.update(dt)
         print("Down key is pressed")
     end
 
+    local speed_increase = 5 * dt
+    if ball.vitesse_x > 0 then
+        ball.vitesse_x = ball.vitesse_x + speed_increase
+    else
+        ball.vitesse_x = ball.vitesse_x - speed_increase
+    end
+    if ball.vitesse_y > 0 then
+        ball.vitesse_y = ball.vitesse_y + speed_increase
+    else
+        ball.vitesse_y = ball.vitesse_y - speed_increase
+    end
+
     ball.x = ball.x + ball.vitesse_x * dt
     ball.y = ball.y + ball.vitesse_y * dt
+
+    table.insert(listeTrails, {x = ball.x, y = ball.y, width = ball.width, height = ball.height})
+    if #listeTrails > 50 then
+        table.remove(listeTrails, 1)
+    end
 
     if ball.y + ball.height > love.graphics.getHeight() or ball.y < 0 then
         ball.vitesse_y = -ball.vitesse_y
@@ -66,4 +85,11 @@ function love.draw()
     love.graphics.rectangle("fill", ball.x, ball.y, ball.width, ball.height)
     love.graphics.rectangle("fill", pad.x, pad.y, pad.width, pad.height)
     love.graphics.print("Player: " .. score.player .. "  Computer: " .. score.computer, 10, 10)
+
+    for num, trail in ipairs(listeTrails) do 
+        local alpha = num / #listeTrails
+        love.graphics.setColor(1, 1, 1, alpha)
+        love.graphics.rectangle("fill", trail.x, trail.y, trail.width, trail.height)
+        love.graphics.setColor(1, 1, 1, 1)
+    end
 end
